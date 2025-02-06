@@ -98,6 +98,27 @@ export async function pdf(
 
   async function getPage(pageNumber: number) {
     const page = await pdfDocument.getPage(pageNumber);
+    // Get original dimensions at scale 1
+    const originalViewport = page.getViewport({ scale: 1 });
+    let originalWidth = originalViewport.width;
+    let originalHeight = originalViewport.height;
+
+    // Ensure width is the shorter edge
+    let isRotated = originalWidth > originalHeight;
+    if (isRotated) {
+        [originalWidth, originalHeight] = [originalHeight, originalWidth];
+    }
+
+    // Target dimensions
+    const TARGET_WIDTH = 816;
+    const TARGET_HEIGHT = 1054;
+
+    // Compute scale factors
+    const scaleX = TARGET_WIDTH / originalWidth;
+    const scaleY = TARGET_HEIGHT / originalHeight;
+    const scale = Math.min(scaleX, scaleY); // Scale up if smaller, but keep aspect ratio
+
+    // Apply the calculated scale
 
     const viewport = page.getViewport({ scale: options.scale ?? 1 });
 
